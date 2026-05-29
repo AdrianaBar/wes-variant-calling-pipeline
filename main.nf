@@ -9,6 +9,7 @@ include { ALIGN_READS as ALIGN_TUMOR; ALIGN_READS as ALIGN_NORMAL } from './modu
 include { MARK_DUPLICATES as DEDUP_TUMOR; MARK_DUPLICATES as DEDUP_NORMAL } from './modules/gatk/mark_duplicates.nf'
 include { CALL_SOMATIC_VARIANTS } from './modules/gatk/mutect2.nf'
 include { FILTER_SOMATIC_VARIANTS } from './modules/gatk/filter_mutect.nf'
+include { ANNOTATE_VARIANTS } from './modules/gatk/snpeff.nf'
 
 // 2. EL WORKFLOW PRINCIPAL 
 workflow {
@@ -64,5 +65,12 @@ workflow {
         CALL_SOMATIC_VARIANTS.out.tbi,
         ch_ref,
         ch_indices
+    )
+
+    // PASO 7: Anotación Biológica y Clínica (SnpEff)
+    ANNOTATE_VARIANTS(
+        ch_patient_id,
+        FILTER_SOMATIC_VARIANTS.out.vcf,
+        FILTER_SOMATIC_VARIANTS.out.tbi
     )
 }
