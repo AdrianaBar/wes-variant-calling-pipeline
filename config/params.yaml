@@ -1,7 +1,6 @@
 // config/params.yaml
 // Parámetros globales del pipeline WES Somático
 
-input: "data/samplesheet.csv"
 outdir: "results"
 
 // Referencia del genoma humano (Broad Institute Bundle GRCh38)
