@@ -56,4 +56,13 @@ workflow {
         ch_ref,
         ch_indices
     )
+
+    // PASO 6: Filtrado Estadístico (FilterMutectCalls)
+    FILTER_SOMATIC_VARIANTS(
+        ch_patient_id,
+        CALL_SOMATIC_VARIANTS.out.vcf,
+        CALL_SOMATIC_VARIANTS.out.tbi,
+        ch_ref,
+        ch_indices
+    )
 }
