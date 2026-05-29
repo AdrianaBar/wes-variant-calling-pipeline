@@ -7,11 +7,13 @@ include { DOWNLOAD_SRA_TUMOR; DOWNLOAD_SRA_NORMAL } from './modules/download_sra
 include { RUN_FASTQC as FASTQC_TUMOR; RUN_FASTQC as FASTQC_NORMAL } from './modules/fastqc/fastqc.nf'
 include { ALIGN_READS as ALIGN_TUMOR; ALIGN_READS as ALIGN_NORMAL } from './modules/bwa/bwa_mem.nf'
 include { MARK_DUPLICATES as DEDUP_TUMOR; MARK_DUPLICATES as DEDUP_NORMAL } from './modules/gatk/mark_duplicates.nf'
+include { CALL_SOMATIC_VARIANTS } from './modules/gatk/mutect2.nf'
 
 // 2. EL WORKFLOW PRINCIPAL 
 workflow {
     
     // Canales para las descargas
+    ch_patient_id = params.dataset.patient_id    
     ch_tumor_id  = Channel.of(params.dataset.tumor_sra)
     ch_normal_id = Channel.of(params.dataset.normal_sra)
 
@@ -39,4 +41,18 @@ workflow {
     // PASO 4: Eliminación de Duplicados de PCR (Conectamos el .bam emitido por BWA)
     DEDUP_TUMOR(ALIGN_TUMOR.out.bam)
     DEDUP_NORMAL(ALIGN_NORMAL.out.bam)
+
+    // PASO 5: Llamado de Variantes Somáticas (Mutect2)
+    // Extraemos los elementos de las tuplas (.map) para pasárselos limpios al proceso
+    CALL_SOMATIC_VARIANTS(
+        ch_patient_id,
+        ch_tumor_id,
+        ch_normal_id,
+        DEDUP_TUMOR.out.bam.map { it[1] },
+        DEDUP_TUMOR.out.bai,
+        DEDUP_NORMAL.out.bam.map { it[1] },
+        DEDUP_NORMAL.out.bai,
+        ch_ref,
+        ch_indices
+    )
 }
