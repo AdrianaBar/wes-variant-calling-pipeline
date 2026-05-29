@@ -1,13 +1,6 @@
-# config/params.yaml
-# Parámetros globales del pipeline WES Somático
-
 outdir: "results"
-
-# Referencia del genoma humano (Broad Institute Bundle GRCh38)
 genome_reference: "reference/HOMO_SAPIENS_hg38.fasta"
-
-# IDs de acceso del SRA para nuestro subset Tumor/Normal (HCC1395)
 dataset:
   patient_id: "PATIENT_01"
-  tumor_sra: "SRR8185411"   // Subset Tumor HCC1395
-  normal_sra: "SRR8185415"  // Subset Normal HCC1395BL
+  tumor_sra: "SRR8185411"
+  normal_sra: "SRR8185415"
