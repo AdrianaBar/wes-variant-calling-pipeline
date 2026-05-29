@@ -8,6 +8,7 @@ include { RUN_FASTQC as FASTQC_TUMOR; RUN_FASTQC as FASTQC_NORMAL } from './modu
 include { ALIGN_READS as ALIGN_TUMOR; ALIGN_READS as ALIGN_NORMAL } from './modules/bwa/bwa_mem.nf'
 include { MARK_DUPLICATES as DEDUP_TUMOR; MARK_DUPLICATES as DEDUP_NORMAL } from './modules/gatk/mark_duplicates.nf'
 include { CALL_SOMATIC_VARIANTS } from './modules/gatk/mutect2.nf'
+include { FILTER_SOMATIC_VARIANTS } from './modules/gatk/filter_mutect.nf'
 
 // 2. EL WORKFLOW PRINCIPAL 
 workflow {
@@ -52,6 +53,15 @@ workflow {
         DEDUP_TUMOR.out.bai,
         DEDUP_NORMAL.out.bam.map { it[1] },
         DEDUP_NORMAL.out.bai,
+        ch_ref,
+        ch_indices
+    )
+
+    // PASO 6: Filtrado Biológico y Estadístico de Mutaciones
+    FILTER_SOMATIC_VARIANTS(
+        ch_patient_id,
+        CALL_SOMATIC_VARIANTS.out.vcf,
+        CALL_SOMATIC_VARIANTS.out.tbi,
         ch_ref,
         ch_indices
     )
