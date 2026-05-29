@@ -1,24 +1,37 @@
 #!/usr/bin/env nextflow
 
-// Activamos la sintaxis DSL2 
 nextflow.enable.dsl=2
 
 // 1. IMPORTAMOS LOS MÓDULOS 
 include { DOWNLOAD_SRA_TUMOR; DOWNLOAD_SRA_NORMAL } from './modules/download_sra.nf'
 include { RUN_FASTQC as FASTQC_TUMOR; RUN_FASTQC as FASTQC_NORMAL } from './modules/fastqc/fastqc.nf'
+include { ALIGN_READS as ALIGN_TUMOR; ALIGN_READS as ALIGN_NORMAL } from './modules/bwa/bwa_mem.nf'
 
 // 2. EL WORKFLOW PRINCIPAL 
 workflow {
     
-    // Creamos canales de Nextflow a partir de los códigos SRR del archivo params.yaml
+    // Canales para las descargas
     ch_tumor_id  = Channel.of(params.dataset.tumor_sra)
     ch_normal_id = Channel.of(params.dataset.normal_sra)
 
-    // Lanzamos los procesos de descarga en paralelo
+    // Canales para la referencia (los lee desde las rutas del params.yaml)
+    ch_ref       = file(params.genome_reference)
+    // Buscamos todos los archivos que empiecen igual que la referencia (los índices)
+    ch_indices   = Channel.fromPath("${params.genome_reference}.*").collect()
+
+    // PASO 1: Descarga
     DOWNLOAD_SRA_TUMOR(ch_tumor_id)
     DOWNLOAD_SRA_NORMAL(ch_normal_id)
     
-    // Paso 2: Control de Calidad (Conectamos la salida .fastq de las descargas)
+    // Paso 2: Control de Calidad
     FASTQC_TUMOR(DOWNLOAD_SRA_TUMOR.out.fastq)
     FASTQC_NORMAL(DOWNLOAD_SRA_NORMAL.out.fastq)
+
+    // Preparar las tuplas [id, [fastq_1, fastq_2]] para el alineador
+    ch_tumor_ready  = ch_tumor_id.zip(DOWNLOAD_SRA_TUMOR.out.fastq)
+    ch_normal_ready = ch_normal_id.zip(DOWNLOAD_SRA_NORMAL.out.fastq)
+
+    // PASO 3: Alineamiento con BWA-MEM
+    ALIGN_TUMOR(ch_tumor_ready, ch_ref, ch_indices)
+    ALIGN_NORMAL(ch_normal_ready, ch_ref, ch_indices)
 }
