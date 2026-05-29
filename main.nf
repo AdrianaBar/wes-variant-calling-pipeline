@@ -6,6 +6,7 @@ nextflow.enable.dsl=2
 include { DOWNLOAD_SRA_TUMOR; DOWNLOAD_SRA_NORMAL } from './modules/download_sra.nf'
 include { RUN_FASTQC as FASTQC_TUMOR; RUN_FASTQC as FASTQC_NORMAL } from './modules/fastqc/fastqc.nf'
 include { ALIGN_READS as ALIGN_TUMOR; ALIGN_READS as ALIGN_NORMAL } from './modules/bwa/bwa_mem.nf'
+include { MARK_DUPLICATES as DEDUP_TUMOR; MARK_DUPLICATES as DEDUP_NORMAL } from './modules/gatk/mark_duplicates.nf'
 
 // 2. EL WORKFLOW PRINCIPAL 
 workflow {
@@ -34,4 +35,8 @@ workflow {
     // PASO 3: Alineamiento con BWA-MEM
     ALIGN_TUMOR(ch_tumor_ready, ch_ref, ch_indices)
     ALIGN_NORMAL(ch_normal_ready, ch_ref, ch_indices)
+
+    // PASO 4: Eliminación de Duplicados de PCR (Conectamos el .bam emitido por BWA)
+    DEDUP_TUMOR(ALIGN_TUMOR.out.bam)
+    DEDUP_NORMAL(ALIGN_NORMAL.out.bam)
 }
