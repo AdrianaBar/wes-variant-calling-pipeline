@@ -4,7 +4,7 @@
 [![Docker](https://img.shields.io/badge/Container-Docker%20%7C%20Singularity-blue.svg)](https://www.docker.com/)
 [![Genomics](https://img.shields.io/badge/Design-Tumor%2FNormal-important.svg)]()
 
-An automated, highly scalable, and production-ready Whole Exome Sequencing (WES) bioinformatic pipeline for **Somatic Variant Calling** in cancer genomics. Built with **Nextflow DSL2** and fully containerized for absolute reproducibility.
+An automated, highly scalable, and production-ready Whole Exome Sequencing (WES) bioinformatic pipeline for **Somatic Variant Calling** in cancer genomics. Built with **Nextflow DSL2** and fully containerized for absolute reproducibility. (WORK STILL IN PROGRESS)
 
 ## 🧬 Oncological Rationale & Workflow
 
