@@ -20,9 +20,12 @@ workflow {
     ch_normal_id = Channel.of(params.dataset.normal_sra)
 
     // Canales para la referencia (los lee desde las rutas del params.yaml)
-    ch_ref       = file(params.genome_reference)
+    //ch_ref       = file(params.genome_reference)  
+    // Mejor creamos un Value Channel que se puede reutilizar infinitas veces):
+    ch_ref = Channel.value(file(params.genome_reference))
+
     // Buscamos todos los archivos que empiecen igual que la referencia (los índices)
-    ch_indices   = Channel.fromPath("${params.genome_reference}.*").collect()
+    ch_indices = Channel.fromPath("${params.genome_reference}.*").collect()
 
     // PASO 1: Descarga
     DOWNLOAD_SRA_TUMOR(ch_tumor_id)

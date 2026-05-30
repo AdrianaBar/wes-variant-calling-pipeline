@@ -1,5 +1,5 @@
 outdir: "results"
-genome_reference: "reference/HOMO_SAPIENS_hg38.fasta"
+genome_reference: "/home/adry/data/reference/hg38_chr22.fa"
 dataset:
   patient_id: "PATIENT_01"
   tumor_sra: "SRR8185411"
